@@ -1,0 +1,172 @@
+<div nz-row nzType="flex">
+  <div nz-col nzSpan="16">
+    <ng-template #header></ng-template>
+    <ng-template #footer>
+      <span>共有{{dataSet.length}}条匹配记录</span>
+      <nz-divider nzType="vertical"></nz-divider>
+      <button nz-button nzType="primary" (click)="showModal()"><i class="anticon anticon-plus-circle-o"></i>添加</button>
+    </ng-template>
+    <nz-table #basicTable
+              nzBordered
+              nzShowSizeChanger
+              [nzFooter]="footer"
+              [nzData]="dataSet">
+      <thead>
+      <tr>
+        <th>序列号</th>
+        <th>价格</th>
+        <th>制造商</th>
+        <th>种类</th>
+        <th>前面板</th>
+        <th>后面版</th>
+        <th>操作</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let data of basicTable.data">
+        <td>{{data.serialNumber}}</td>
+        <td>{{data.price}}</td>
+        <td>{{data.builder}}</td>
+        <td>{{data.type}}</td>
+        <td>{{data.topWood}}</td>
+        <td>{{data.backWood}}</td>
+        <td>
+          <nz-divider nzType="vertical"></nz-divider>
+          <a (click)="deleteGuitar(data)">Delete</a>
+        </td>
+      </tr>
+      </tbody>
+    </nz-table>
+
+    <nz-modal [(nzVisible)]="isVisible" nzTitle="添加" (nzOnCancel)="handleCancel()" (nzOnOk)="handleOk()"
+              [nzOkLoading]="isOkLoading">
+      <div [ngTemplateOutlet]="addTemplate"></div>
+    </nz-modal>
+  </div>
+  <div nz-col nzSpan="8" style="padding-left: 16px">
+    <div nz-row style="padding-left: 24px">
+      <h1>搜索吉他</h1>
+    </div>
+    <div nz-row>
+      <div [ngTemplateOutlet]="searchTemplate"></div>
+    </div>
+    <div nz-row nzType="flex" nzJustify="center">
+      <button nz-button nzType="primary" (click)="searchForm.reset()"><i class="anticon anticon-sync"></i>重置</button>
+    </div>
+  </div>
+</div>
+<ng-template #addTemplate>
+  <form nz-form [formGroup]="form">
+    <nz-form-item>
+      <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired nzFor="serialNumber">序列号</nz-form-label>
+      <nz-form-control [nzSm]="14" [nzXs]="24">
+        <input nz-input formControlName="serialNumber" nzAllowClear id="serialNumber" type="number" min="0" max="2147483647">
+        <nz-form-explain *ngIf="form.get('serialNumber').dirty && form.get('serialNumber').errors">此项输入不合法！
+        </nz-form-explain>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired nzFor="price">价格</nz-form-label>
+      <nz-form-control [nzSm]="14" [nzXs]="24">
+        <nz-input-group nzPrefixIcon="anticon anticon-pay-circle-o">
+          <input nz-input formControlName="price" id="price" type="number" min="0" max="2147483647">
+        </nz-input-group>
+        <nz-form-explain *ngIf="form.get('price').dirty && form.get('price').errors">此项输入不合法！</nz-form-explain>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired nzFor="builder">制造商</nz-form-label>
+      <nz-form-control [nzSm]="14" [nzXs]="24">
+        <nz-select nzShowSearch nzAllowClear nzPlaceHolder="请选择" formControlName="builder" id="builder">
+          <nz-option *ngFor="let data of builders" nzLabel="{{data.value}}" nzValue="{{data.value}}"></nz-option>
+        </nz-select>
+        <nz-form-explain *ngIf="form.get('builder').dirty && form.get('builder').errors">此项输入不合法！</nz-form-explain>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired nzFor="type">类型</nz-form-label>
+      <nz-form-control [nzSm]="14" [nzXs]="24">
+        <nz-select nzShowSearch nzAllowClear nzPlaceHolder="请选择" formControlName="type" id="type">
+          <nz-option *ngFor="let data of types" nzLabel="{{data.value}}" nzValue="{{data.value}}"></nz-option>
+        </nz-select>
+        <nz-form-explain *ngIf="form.get('type').dirty && form.get('type').errors">此项输入不合法！</nz-form-explain>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired nzFor="topWood">前面板</nz-form-label>
+      <nz-form-control [nzSm]="14" [nzXs]="24">
+        <nz-select nzShowSearch nzAllowClear nzPlaceHolder="请选择" formControlName="topWood" id="topWood">
+          <nz-option *ngFor="let data of woods" nzLabel="{{data.value}}" nzValue="{{data.value}}"></nz-option>
+        </nz-select>
+        <nz-form-explain *ngIf="form.get('topWood').dirty && form.get('topWood').errors">此项输入不合法！</nz-form-explain>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired nzFor="backWood">后面板</nz-form-label>
+      <nz-form-control [nzSm]="14" [nzXs]="24">
+        <nz-select nzShowSearch nzAllowClear nzPlaceHolder="请选择" formControlName="backWood" id="builder">
+          <nz-option *ngFor="let data of woods" nzLabel="{{data.value}}" nzValue="{{data.value}}"></nz-option>
+        </nz-select>
+        <nz-form-explain *ngIf="form.get('backWood').dirty && form.get('backWood').errors">此项输入不合法！</nz-form-explain>
+      </nz-form-control>
+    </nz-form-item>
+  </form>
+</ng-template>
+
+<ng-template #searchTemplate>
+  <form nz-form [formGroup]="searchForm">
+    <nz-form-item>
+      <nz-form-label [nzSm]="6" [nzXs]="24"  nzFor="serialNumber">序列号</nz-form-label>
+      <nz-form-control [nzSm]="14" [nzXs]="24">
+        <input nz-input formControlName="serialNumber" nzAllowClear id="serialNumber" type="number" min="0" max="2147483647">
+        <nz-form-explain *ngIf="searchForm.get('serialNumber').dirty && searchForm.get('serialNumber').errors">此项输入不合法！
+        </nz-form-explain>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSm]="6" [nzXs]="24"  nzFor="price">价格</nz-form-label>
+      <nz-form-control [nzSm]="14" [nzXs]="24">
+        <nz-input-group nzPrefixIcon="anticon anticon-pay-circle-o">
+          <input nz-input formControlName="price" id="price" type="number" min="0" max="2147483647">
+        </nz-input-group>
+        <nz-form-explain *ngIf="searchForm.get('price').dirty && searchForm.get('price').errors">此项输入不合法！</nz-form-explain>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSm]="6" [nzXs]="24"  nzFor="builder">制造商</nz-form-label>
+      <nz-form-control [nzSm]="14" [nzXs]="24">
+        <nz-select nzShowSearch nzAllowClear nzPlaceHolder="请选择" formControlName="builder" id="builder">
+          <nz-option *ngFor="let data of builders" nzLabel="{{data.value}}" nzValue="{{data.value}}"></nz-option>
+        </nz-select>
+        <nz-form-explain *ngIf="searchForm.get('builder').dirty && searchForm.get('builder').errors">此项输入不合法！</nz-form-explain>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSm]="6" [nzXs]="24"  nzFor="type">类型</nz-form-label>
+      <nz-form-control [nzSm]="14" [nzXs]="24">
+        <nz-select nzShowSearch nzAllowClear nzPlaceHolder="请选择" formControlName="type" id="type">
+          <nz-option *ngFor="let data of types" nzLabel="{{data.value}}" nzValue="{{data.value}}"></nz-option>
+        </nz-select>
+        <nz-form-explain *ngIf="searchForm.get('type').dirty && searchForm.get('type').errors">此项输入不合法！</nz-form-explain>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSm]="6" [nzXs]="24"  nzFor="topWood">前面板</nz-form-label>
+      <nz-form-control [nzSm]="14" [nzXs]="24">
+        <nz-select nzShowSearch nzAllowClear nzPlaceHolder="请选择" formControlName="topWood" id="topWood">
+          <nz-option *ngFor="let data of woods" nzLabel="{{data.value}}" nzValue="{{data.value}}"></nz-option>
+        </nz-select>
+        <nz-form-explain *ngIf="searchForm.get('topWood').dirty && searchForm.get('topWood').errors">此项输入不合法！</nz-form-explain>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSm]="6" [nzXs]="24"  nzFor="backWood">后面板</nz-form-label>
+      <nz-form-control [nzSm]="14" [nzXs]="24">
+        <nz-select nzShowSearch nzAllowClear nzPlaceHolder="请选择" formControlName="backWood" id="builder">
+          <nz-option *ngFor="let data of woods" nzLabel="{{data.value}}" nzValue="{{data.value}}"></nz-option>
+        </nz-select>
+        <nz-form-explain *ngIf="searchForm.get('backWood').dirty && searchForm.get('backWood').errors">此项输入不合法！</nz-form-explain>
+      </nz-form-control>
+    </nz-form-item>
+  </form>
+</ng-template>
